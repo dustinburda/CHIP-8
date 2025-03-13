@@ -21,7 +21,7 @@ public:
 
 private:
     explicit Display() {
-        std::memset(buffer_.data(), sizeof (uint8_t) * WIDTH * HEIGHT, )
+        std::memset(buffer_.data(), 0x0, sizeof (uint8_t) * WIDTH * HEIGHT);
     }
 
     std::array<std::array<uint8_t, WIDTH>, HEIGHT> buffer_;
