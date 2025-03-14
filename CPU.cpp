@@ -40,55 +40,106 @@ void CPU::LoadRom(std::filesystem::path& path) {
     rom.read(reinterpret_cast<char *>(state_.memory_.data()), read_amount);
 }
 
-std::uint16_t CPU::Fetch() {
-    std::uint16_t nibble1 = 0xFFF & static_cast<std::uint16_t>(state_.memory_[state_.pc_]);
-    std::uint16_t nibble2 = 0xFFF & (static_cast<std::uint16_t>(state_.memory_[state_.pc_ + 1]) << 8); // CHECK THIS
+Instruction CPU::Fetch() {
+    std::uint16_t byte1 = 0xFFF & static_cast<std::uint16_t>(state_.memory_[state_.pc_]);
+    std::uint16_t byte2 = 0xFFF & (static_cast<std::uint16_t>(state_.memory_[state_.pc_ + 1]) << 8); // CHECK THIS
 
     state_.pc_ += 2;
 
-    std::uint16_t op = nibble1 | nibble2;
+    std::uint16_t op = byte1 | byte2;
 
-    return op;
+    return Instruction{op};
 }
 
-void CPU::Execute(std::uint16_t instruction) {
-    std::uint8_t mask = (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0);
-
-    std::uint8_t nibble1 = instruction & mask;
-    std::uint8_t nibble2 = (instruction & (mask << 4)) >> 4;
-    std::uint8_t nibble3 = (instruction & (mask << 8)) >> 8;
-    std::uint8_t nibble4 = (instruction & (mask << 12)) >> 12;
-
+void CPU::Execute(Instruction instruction) {
     std::stringstream ss;
-    ss << std::hex << instruction;
+    ss << std::hex << instruction.instruction_;
     std::string base_error = "Unsupported OP code: " + ss.str();
 
     // Replace this with a map from opcode to function pointer
-    switch (nibble1) {
+    switch (instruction.nibble1_) {
         case 0x0:
-            if (nibble3 == 0xE) {
-                if (nibble4 == 0x0) {
+            if (instruction.nibble3_ == 0xE) {
+                if (instruction.nibble4_ == 0x0) {
                     OP_00E0();
-                } else if (nibble4 == 0xE) {
+                    return;
+                } else if (instruction.nibble4_ == 0xE) {
                     OP_00EE();
-                } else
-                    throw std::logic_error(base_error);
+                    return;
+                }
             }
         case 0x1:
-
+            OP_1NNN();
+            return;
         case 0x2:
+            OP_2NNN();
+            return;
         case 0x3:
+            OP_3XKK();
+            return;
         case 0x4:
+            OP_4XKK();
+            return;
         case 0x5:
+            OP_5XY0();
+            return;
         case 0x6:
+            OP_6XKK();
+            return;
         case 0x7:
+            OP_7XKK();
+            return;
         case 0x8:
+            if (instruction.nibble4_ == 0x1) {
+                OP_8XY1();
+                return;
+            } else if (instruction.nibble4_ == 0x2) {
+                OP_8XY2();
+                return;
+            } else if (instruction.nibble4_ == 0x3) {
+                OP_8XY3();
+                return;
+            } else if (instruction.nibble4_ == 0x4) {
+                OP_8XY4();
+                return;
+            } else if (instruction.nibble4_ == 0x5) {
+                OP_8XY5();
+                return;
+            } else if (instruction.nibble4_ == 0x6) {
+                OP_8XY6();
+                return;
+            } else if (instruction.nibble4_ == 0x7) {
+                OP_8XY7();
+                return;
+            } else if (instruction.nibble4_ == 0xE) {
+                OP_8XYE();
+                return;
+            }
         case 0x9:
+            if (instruction.nibble4_ == 0x0) {
+                OP_9XY0();
+                return;
+            }
         case 0xA:
+            OP_ANNN();
+            return;
         case 0xB:
+            OP_BNNN();
+            return;
         case 0xC:
+            OP_CXKK();
+            return;
         case 0xD:
+            OP_DXYN();
+            return;
         case 0xE:
+            if (instruction.nibble3_ == 0x9 && instruction.nibble4_ == 0xE) {
+                OP_EX9E();
+                return;
+            } else if (instruction.nibble3_ == 0xA && instruction.nibble4_ == 0x1) {
+                OP_EXA1();
+                return;
+            }
         case 0xF:
         default:
             throw std::logic_error(base_error);
@@ -105,7 +156,7 @@ void CPU::Run() {
     auto start = std::chrono::steady_clock::now();
 
     for(int i = 0; i < speed_; i++) {
-        std::uint16_t instruction = Fetch();
+        auto instruction = Fetch();
         Execute(instruction);
     }
 

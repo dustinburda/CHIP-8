@@ -15,6 +15,22 @@ static constexpr int REGISTER_COUNT = 16;
 static constexpr int MEMORY_SIZE = 4096;
 static constexpr int STACK_SIZE = 16;
 
+struct Instruction {
+    explicit Instruction(std::uint16_t instruction) : instruction_{instruction} {
+        std::uint8_t mask = (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0);
+
+        nibble1_ = instruction & mask;
+        nibble2_ = (instruction & (mask << 4)) >> 4;
+        nibble3_ = (instruction & (mask << 8)) >> 8;
+        nibble4_ = (instruction & (mask << 12)) >> 12;
+    }
+
+    std::uint16_t instruction_;
+    std::uint8_t nibble1_;
+    std::uint8_t nibble2_;
+    std::uint8_t nibble3_;
+    std::uint8_t nibble4_;
+};
 
 struct CPUState {
     CPUState();
@@ -36,8 +52,8 @@ public:
     void Run();
 
 private:
-    std::uint16_t Fetch();
-    void Execute(std::uint16_t instruction);
+    Instruction Fetch();
+    void Execute(Instruction instruction);
 
     void OP_00E0();
     void OP_00EE();
@@ -56,6 +72,13 @@ private:
     void OP_8XY6();
     void OP_8XY7();
     void OP_8XYE();
+    void OP_9XY0();
+    void OP_ANNN();
+    void OP_BNNN();
+    void OP_CXKK();
+    void OP_DXYN();
+    void OP_EX9E();
+    void OP_EXA1();
 
     CPUState state_;
     Display* d_;
