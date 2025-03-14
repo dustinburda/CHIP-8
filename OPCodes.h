@@ -73,5 +73,34 @@ void CPU::OP_8XYE() {
 
 }
 
+void CPU::OP_9XY0() {
+
+}
+
+void CPU::OP_ANNN() {
+
+}
+
+void CPU::OP_BNNN() {
+
+}
+
+void CPU::OP_CXKK() {
+
+}
+
+void CPU::OP_DXYN() {
+
+}
+
+void CPU::OP_EX9E() {
+
+}
+
+void CPU::OP_EXA1() {
+
+}
+
+
 
 #endif //CHIP_8_OPCODES_H
