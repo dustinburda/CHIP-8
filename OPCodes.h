@@ -165,6 +165,43 @@ void CPU::OP_EXA1(Instruction i) {
 
 }
 
+void CPU::OP_FX07(Instruction i) {
+
+}
+
+void CPU::OP_FX0A(Instruction i) {
+
+}
+
+void CPU::OP_FX15(Instruction i) {
+
+}
+
+void CPU::OP_FX18(Instruction i) {
+
+}
+
+void CPU::OP_FX1E(Instruction i) {
+
+}
+
+void CPU::OP_FX29(Instruction i) {
+
+}
+
+void CPU::OP_FX33(Instruction i) {
+
+}
+
+void CPU::OP_FX55(Instruction i) {
+
+}
+
+void CPU::OP_FX65(Instruction i) {
+
+}
+
+
 
 
 #endif //CHIP_8_OPCODES_H

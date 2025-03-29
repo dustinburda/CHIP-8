@@ -16,12 +16,10 @@ static constexpr int MEMORY_SIZE = 4096;
 
 struct Instruction {
     explicit Instruction(std::uint16_t instruction) : instruction_{instruction} {
-        std::uint8_t mask = (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0);
-
-        nibble1_ = instruction & mask;
-        nibble2_ = (instruction & (mask << 4)) >> 4;
-        nibble3_ = (instruction & (mask << 8)) >> 8;
-        nibble4_ = (instruction & (mask << 12)) >> 12;
+        nibble1_ = instruction & 0x000F;
+        nibble2_ = (instruction & 0x00F0) >> 4;
+        nibble3_ = (instruction & 0x0F00) >> 8;
+        nibble4_ = (instruction & 0xF000) >> 12;
     }
 
     std::uint16_t instruction_;
@@ -77,6 +75,15 @@ private:
     void OP_DXYN(Instruction i);
     void OP_EX9E(Instruction i);
     void OP_EXA1(Instruction i);
+    void OP_FX07(Instruction i);
+    void OP_FX0A(Instruction i);
+    void OP_FX15(Instruction i);
+    void OP_FX18(Instruction i);
+    void OP_FX1E(Instruction i);
+    void OP_FX29(Instruction i);
+    void OP_FX33(Instruction i);
+    void OP_FX55(Instruction i);
+    void OP_FX65(Instruction i);
 
     CPUState state_;
     Display* d_;

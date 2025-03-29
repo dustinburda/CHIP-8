@@ -140,6 +140,34 @@ void CPU::Execute(Instruction instruction) {
                 return;
             }
         case 0xF:
+            if (instruction.nibble3_ == 0x0 && instruction.nibble4_ == 0x7){
+                OP_FX07(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x0 && instruction.nibble4_ == 0xA){
+                OP_FX0A(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0x5){
+                OP_FX15(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0x8){
+                OP_FX18(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0xE){
+                OP_FX1E(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x2 && instruction.nibble4_ == 0x9){
+                OP_FX29(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x3 && instruction.nibble4_ == 0x3){
+                OP_FX33(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x5 && instruction.nibble4_ == 0x5){
+                OP_FX55(instruction);
+                return;
+            } else if (instruction.nibble3_ == 0x6 && instruction.nibble4_ == 0x5){
+                OP_FX65(instruction);
+                return;
+            }
         default:
             throw std::logic_error(base_error);
     }
