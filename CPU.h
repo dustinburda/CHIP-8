@@ -13,7 +13,6 @@
 
 static constexpr int REGISTER_COUNT = 16;
 static constexpr int MEMORY_SIZE = 4096;
-static constexpr int STACK_SIZE = 16;
 
 struct Instruction {
     explicit Instruction(std::uint16_t instruction) : instruction_{instruction} {
@@ -37,9 +36,8 @@ struct CPUState {
 
     std::array<std::uint8_t, REGISTER_COUNT> registers_;
     std::array<std::byte, MEMORY_SIZE> memory_;
-    std::array<std::uint16_t, STACK_SIZE> stack_;
+    std::stack<std::uint16_t> stack_;
 
-    std::uint16_t stack_pointer_;
     std::uint16_t i_;
     std::uint16_t pc_;
 };
@@ -57,28 +55,28 @@ private:
 
     void OP_00E0();
     void OP_00EE();
-    void OP_1NNN();
-    void OP_2NNN();
-    void OP_3XKK();
-    void OP_4XKK();
-    void OP_5XY0();
-    void OP_6XKK();
-    void OP_7XKK();
-    void OP_8XY1();
-    void OP_8XY2();
-    void OP_8XY3();
-    void OP_8XY4();
-    void OP_8XY5();
-    void OP_8XY6();
-    void OP_8XY7();
-    void OP_8XYE();
-    void OP_9XY0();
-    void OP_ANNN();
-    void OP_BNNN();
-    void OP_CXKK();
-    void OP_DXYN();
-    void OP_EX9E();
-    void OP_EXA1();
+    void OP_1NNN(Instruction i);
+    void OP_2NNN(Instruction i);
+    void OP_3XKK(Instruction i);
+    void OP_4XKK(Instruction i);
+    void OP_5XY0(Instruction i);
+    void OP_6XKK(Instruction i);
+    void OP_7XKK(Instruction i);
+    void OP_8XY1(Instruction i);
+    void OP_8XY2(Instruction i);
+    void OP_8XY3(Instruction i);
+    void OP_8XY4(Instruction i);
+    void OP_8XY5(Instruction i);
+    void OP_8XY6(Instruction i);
+    void OP_8XY7(Instruction i);
+    void OP_8XYE(Instruction i);
+    void OP_9XY0(Instruction i);
+    void OP_ANNN(Instruction i);
+    void OP_BNNN(Instruction i);
+    void OP_CXKK(Instruction i);
+    void OP_DXYN(Instruction i);
+    void OP_EX9E(Instruction i);
+    void OP_EXA1(Instruction i);
 
     CPUState state_;
     Display* d_;

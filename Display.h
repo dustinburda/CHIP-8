@@ -18,6 +18,8 @@ public:
         static Display* d = new Display();
     }
 
+    std::array<std::array<uint8_t, WIDTH>, HEIGHT>& GetBuffer() { return buffer_; }
+
 
 private:
     explicit Display() {

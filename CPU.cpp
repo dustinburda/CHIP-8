@@ -19,8 +19,7 @@ static constexpr int START_ADDRESS = 0x200;
 CPUState::CPUState() {
     std::memset(registers_.data(), 0x0, sizeof(std::uint8_t) * REGISTER_COUNT);
     std::memset(memory_.data(), 0x0, sizeof(std::byte) * MEMORY_SIZE);
-    std::memset(stack_.data(), 0x0, sizeof (std::uint16_t) * STACK_SIZE);
-    stack_pointer_ = 0x0;
+
     i_ = 0x0;
     pc_ = START_ADDRESS;
 }
@@ -69,75 +68,75 @@ void CPU::Execute(Instruction instruction) {
                 }
             }
         case 0x1:
-            OP_1NNN();
+            OP_1NNN(instruction);
             return;
         case 0x2:
-            OP_2NNN();
+            OP_2NNN(instruction);
             return;
         case 0x3:
-            OP_3XKK();
+            OP_3XKK(instruction);
             return;
         case 0x4:
-            OP_4XKK();
+            OP_4XKK(instruction);
             return;
         case 0x5:
-            OP_5XY0();
+            OP_5XY0(instruction);
             return;
         case 0x6:
-            OP_6XKK();
+            OP_6XKK(instruction);
             return;
         case 0x7:
-            OP_7XKK();
+            OP_7XKK(instruction);
             return;
         case 0x8:
             if (instruction.nibble4_ == 0x1) {
-                OP_8XY1();
+                OP_8XY1(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x2) {
-                OP_8XY2();
+                OP_8XY2(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x3) {
-                OP_8XY3();
+                OP_8XY3(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x4) {
-                OP_8XY4();
+                OP_8XY4(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x5) {
-                OP_8XY5();
+                OP_8XY5(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x6) {
-                OP_8XY6();
+                OP_8XY6(instruction);
                 return;
             } else if (instruction.nibble4_ == 0x7) {
-                OP_8XY7();
+                OP_8XY7(instruction);
                 return;
             } else if (instruction.nibble4_ == 0xE) {
-                OP_8XYE();
+                OP_8XYE(instruction);
                 return;
             }
         case 0x9:
             if (instruction.nibble4_ == 0x0) {
-                OP_9XY0();
+                OP_9XY0(instruction);
                 return;
             }
         case 0xA:
-            OP_ANNN();
+            OP_ANNN(instruction);
             return;
         case 0xB:
-            OP_BNNN();
+            OP_BNNN(instruction);
             return;
         case 0xC:
-            OP_CXKK();
+            OP_CXKK(instruction);
             return;
         case 0xD:
-            OP_DXYN();
+            OP_DXYN(instruction);
             return;
         case 0xE:
             if (instruction.nibble3_ == 0x9 && instruction.nibble4_ == 0xE) {
-                OP_EX9E();
+                OP_EX9E(instruction);
                 return;
             } else if (instruction.nibble3_ == 0xA && instruction.nibble4_ == 0x1) {
-                OP_EXA1();
+                OP_EXA1(instruction);
                 return;
             }
         case 0xF:
