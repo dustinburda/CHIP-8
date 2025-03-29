@@ -173,8 +173,6 @@ void CPU::Execute(Instruction instruction) {
     }
 }
 
-
-
 void CPU::Run() {
 
     // Time One second
