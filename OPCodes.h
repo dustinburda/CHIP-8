@@ -5,8 +5,12 @@
 #ifndef CHIP_8_OPCODES_H
 #define CHIP_8_OPCODES_H
 
+#include "util.h"
+
+#include "Keyboard.h"
+
 void CPU::OP_00E0() {
-    std::memset(d_->GetBuffer().data(), sizeof(uint8_t) * WIDTH * HEIGHT, 0x0);
+    d_->ClearDisplay();
 }
 
 void CPU::OP_00EE() {
@@ -15,18 +19,15 @@ void CPU::OP_00EE() {
 }
 
 void CPU::OP_1NNN(Instruction i) {
-    std::uint16_t nnn = 0x0;
-
-    nnn |= (i.nibble1_ | (i.nibble2_ << 4) | (i.nibble3_ << 8));
-    state_.pc_ = nnn;
+    std::uint16_t NNN = (i.instruction_ & 0xFFF);
+    state_.pc_ = NNN;
 }
 
 void CPU::OP_2NNN(Instruction i) {
     state_.stack_.push(state_.pc_);
 
-    std::uint16_t nnn = 0x0;
-    nnn |= (i.nibble1_ | (i.nibble2_ << 4) | (i.nibble3_ << 8));
-    state_.pc_ = nnn;
+    std::uint16_t NNN = (i.instruction_ & 0xFFF);
+    state_.pc_ = NNN;
 
 }
 
@@ -142,14 +143,21 @@ void CPU::OP_9XY0(Instruction i) {
 }
 
 void CPU::OP_ANNN(Instruction i) {
-
+    std::uint16_t NNN = (i.instruction_ & 0xFFF);
+    state_.i_ = NNN;
 }
 
 void CPU::OP_BNNN(Instruction i) {
-
+    std::uint16_t NNN = (i.instruction_ & 0xFFF);
+    state_.pc_ = state_.registers_[0] + NNN;
 }
 
 void CPU::OP_CXKK(Instruction i) {
+    std::uint8_t random_byte = RandomByteGenerator::GetInstance().RandomByte();
+    uint8_t KK = (i.nibble2_ << 4) | i.nibble1_;
+
+    uint8_t X = i.nibble3_;
+    state_.registers_[X] = (random_byte & KK);
 
 }
 
@@ -158,7 +166,10 @@ void CPU::OP_DXYN(Instruction i) {
 }
 
 void CPU::OP_EX9E(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    if(KeypadKey_State[X] == KeyState::KeyDown)
+        state_.pc_ += 2;
 }
 
 void CPU::OP_EXA1(Instruction i) {

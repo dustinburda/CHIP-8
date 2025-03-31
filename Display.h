@@ -18,7 +18,9 @@ public:
         static Display* d = new Display();
     }
 
-    std::array<std::array<uint8_t, WIDTH>, HEIGHT>& GetBuffer() { return buffer_; }
+    void ClearDisplay() {
+        std::memset(buffer_.data(), 0x0, sizeof (uint8_t) * WIDTH * HEIGHT);
+    }
 
 
 private:
