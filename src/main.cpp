@@ -2,8 +2,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "Keyboard.h"
-#include "Window.h"
+#include "../include/Keyboard.h"
+#include "../include/Window.h"
 
 int main() {
 

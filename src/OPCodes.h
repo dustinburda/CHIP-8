@@ -5,9 +5,9 @@
 #ifndef CHIP_8_OPCODES_H
 #define CHIP_8_OPCODES_H
 
-#include "util.h"
+#include "../include/util.h"
 
-#include "Keyboard.h"
+#include "../include/Keyboard.h"
 
 void CPU::OP_00E0() {
     d_->ClearDisplay();
