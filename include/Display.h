@@ -22,6 +22,9 @@ public:
         std::memset(buffer_.data(), 0x0, sizeof (uint8_t) * WIDTH * HEIGHT);
     }
 
+    void Set(int y, int x, uint8_t byte);
+    uint8_t Get(int y, int x);
+
 
 private:
     explicit Display() {

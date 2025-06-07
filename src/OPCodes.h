@@ -162,7 +162,37 @@ void CPU::OP_CXKK(Instruction i) {
 }
 
 void CPU::OP_DXYN(Instruction i) {
+    auto vx = i.nibble4_;
+    auto vy = i.nibble3_;
+    auto n = i.nibble2_;
 
+    auto x = state_.registers_[vx] % 64;
+    auto y = state_.registers_[vy] % 32;
+
+    char sprite_buffer[32];
+    std::memcpy(sprite_buffer, state_.memory_.data(), n);
+
+    for (int i_y = 0; i_y < n; i_y++) {
+        auto byte = sprite_buffer[i_y];
+        for(int i_x = 0; i_x < 8; i_x++) {
+            auto x_pos = x + i_x;
+            auto y_pos = y + i_y;
+
+            if (x_pos >= 64)
+                break;
+
+            auto old_pixel_val = d_->Get(y_pos, x_pos);
+            auto new_pixel_val = ((byte && (1 << (7 - i_x))) >> (7 - i_x)) ^ old_pixel_val;
+
+            if (old_pixel_val == 1 && new_pixel_val == 0)
+                state_.registers_[0xF] = 1;
+
+            d_->Set(y_pos, x_pos, new_pixel_val);
+        }
+
+        if (y >= 32)
+            break;
+    }
 }
 
 void CPU::OP_EX9E(Instruction i) {
@@ -173,27 +203,57 @@ void CPU::OP_EX9E(Instruction i) {
 }
 
 void CPU::OP_EXA1(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    if(KeypadKey_State[X] == KeyState::KeyUp)
+        state_.pc_ += 2;
 }
 
 void CPU::OP_FX07(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    state_.registers_[X] = state_.dt_;
+}
+
+std::optional<std::uint8_t> KeyDown() {
+    for (auto& [ key, key_state ] : KeypadKey_State) {
+        if (key_state == KeyState::KeyDown)
+            return key;
+    }
+
+    return std::nullopt;
 }
 
 void CPU::OP_FX0A(Instruction i) {
+    std::uint8_t X = i.nibble3_;
+
+    auto key = KeyDown();
+
+    if (key = std::nullopt) {
+        state_.pc_ -= 2;
+        return;
+    }
+
+    state_.registers_[X] = key.value();
 
 }
 
 void CPU::OP_FX15(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    state_.dt_ = state_.registers_[X];
 }
 
 void CPU::OP_FX18(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    state_.st_ = state_.registers_[X];
 }
 
 void CPU::OP_FX1E(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    state_.i_ += state_.registers_[X];
 }
 
 void CPU::OP_FX29(Instruction i) {

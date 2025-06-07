@@ -38,6 +38,9 @@ struct CPUState {
 
     std::uint16_t i_;
     std::uint16_t pc_;
+
+    std::uint8_t dt_;
+    std::uint8_t st_;
 };
 
 class CPU {
