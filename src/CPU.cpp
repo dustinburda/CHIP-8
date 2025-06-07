@@ -4,8 +4,6 @@
 
 #include "../include/CPU.h"
 
-#include "OPCodes.h"
-
 #include <chrono>
 #include <cstring>
 #include <fstream>
@@ -14,11 +12,15 @@
 #include <stdexcept>
 #include <thread>
 
+#include "../include/Font.h"
+#include "../include/OPCodes.h"
+
 static constexpr int START_ADDRESS = 0x200;
 
 CPUState::CPUState() {
     std::memset(registers_.data(), 0x0, sizeof(std::uint8_t) * REGISTER_COUNT);
-    std::memset(memory_.data(), 0x0, sizeof(std::byte) * MEMORY_SIZE);
+    std::memcpy(memory_.data(), FONT_DATA.data(), sizeof(std::uint8_t) * FONT_DATA.size() );
+    std::memset(memory_.data() + START_ADDRESS, 0x0, sizeof(std::byte) * (MEMORY_SIZE - START_ADDRESS));
 
     i_ = 0x0;
     pc_ = START_ADDRESS;

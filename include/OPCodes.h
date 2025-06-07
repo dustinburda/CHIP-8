@@ -5,9 +5,11 @@
 #ifndef CHIP_8_OPCODES_H
 #define CHIP_8_OPCODES_H
 
-#include "../include/util.h"
+#include "util.h"
 
-#include "../include/Keyboard.h"
+#include "CPU.h"
+#include "Font.h"
+#include "Keyboard.h"
 
 void CPU::OP_00E0() {
     d_->ClearDisplay();
@@ -257,19 +259,37 @@ void CPU::OP_FX1E(Instruction i) {
 }
 
 void CPU::OP_FX29(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    state_.i_ = static_cast<int>(X) * FONT_SIZE;
 }
 
 void CPU::OP_FX33(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    std::uint8_t ones = X % 10;
+    std::uint8_t tens = X % 100;
+    std::uint8_t hundreds = X % 1000;
+
+    state_.memory_[state_.i_] = static_cast<std::byte>(ones);
+    state_.memory_[state_.i_]= static_cast<std::byte>(tens);
+    state_.memory_[state_.i_] = static_cast<std::byte>(hundreds);
 }
 
 void CPU::OP_FX55(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    for (int offset = 0x0; offset < X; offset++) {
+        state_.memory_[state_.i_ + offset] = static_cast<std::byte>(state_.registers_[offset]);
+    }
 }
 
 void CPU::OP_FX65(Instruction i) {
+    std::uint8_t X = i.nibble3_;
 
+    for (int offset = 0x0; offset < X; offset++) {
+        state_.registers_[offset] = static_cast<std::uint8_t>(state_.memory_[state_.i_ + offset]);
+    }
 }
 
 
