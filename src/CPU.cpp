@@ -13,7 +13,6 @@
 #include <thread>
 
 #include "../include/Font.h"
-#include "../include/OPCodes.h"
 
 static constexpr int START_ADDRESS = 0x200;
 
@@ -28,7 +27,7 @@ CPUState::CPUState() {
 
 CPU::CPU(Display* d) : d_{d}, speed_{700} {}
 
-void CPU::LoadRom(std::filesystem::path& path) {
+void CPU::LoadRom(const std::filesystem::path& path) {
     std::memset(state_.memory_.data(), 0x0, 0xFFF);
 
     std::ifstream rom{path};
@@ -175,24 +174,52 @@ void CPU::Execute(Instruction instruction) {
     }
 }
 
-void CPU::Run() {
+void HandleInput(SDL_Event& event, bool& running) {
+    if (event.type == SDL_QUIT) {
+        std::cout << "Quitting";
+        running = false;
+    } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+        auto SDL_Key = event.key.keysym.sym;
 
-    // Time One second
-    // Perform speed_ number of instructions
-    // sleep for the rest
-    auto start = std::chrono::steady_clock::now();
-
-    for(int i = 0; i < speed_; i++) {
-        auto instruction = Fetch();
-        Execute(instruction);
+        //  std::cout << SDL_GetKeyName(SDL_Key) << "  " << ((event.type == SDL_KEYDOWN) ? " Pressed" : " Released") << "\n";
+        if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
+            auto KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
+            KeypadKey_State[KeypadKey] = (event.type == SDL_KEYDOWN) ? KeyState::KeyDown
+                                                                     : KeyState::KeyUp;
+        }
     }
 
+}
 
-    auto end = std::chrono::steady_clock::now();
+void CPU::Run() {
+    SDL_Event event;
+    bool running = true;
 
-    auto cycle_duration = std::chrono::duration_cast<std::chrono::milliseconds>(start - end);
-    auto sleep_time = std::chrono::milliseconds(1000) - cycle_duration;
+    SDLWindow w;
 
-    std::this_thread::sleep_for(sleep_time);
+    while(running) {
+
+        while(SDL_PollEvent(&event)) {
+            HandleInput(event, running);
+        }
+
+        // Time One second
+        // Perform speed_ number of instructions
+        // sleep for the rest
+        auto start = std::chrono::steady_clock::now();
+
+        for(int i = 0; i < speed_; i++) {
+            auto instruction = Fetch();
+            Execute(instruction);
+        }
+
+
+        auto end = std::chrono::steady_clock::now();
+
+        auto cycle_duration = std::chrono::duration_cast<std::chrono::milliseconds>(start - end);
+        auto sleep_time = std::chrono::milliseconds(1000) - cycle_duration;
+
+        std::this_thread::sleep_for(sleep_time);
+    }
 }
 

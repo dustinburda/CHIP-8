@@ -9,7 +9,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 file(GLOB SRC_FILES
     src/main.cpp
     src/CPU.cpp
-    src/Display.cpp)
+    src/Display.cpp
+    src/OPCodes.cpp)
 
 add_executable(CHIP_8 ${SRC_FILES})
 

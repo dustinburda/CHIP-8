@@ -11,6 +11,12 @@
 #include <cstdint>
 #include <filesystem>
 
+#include <SDL2/SDL.h>
+
+#include "../include/Keyboard.h"
+#include "../include/Window.h"
+
+
 static constexpr int REGISTER_COUNT = 16;
 static constexpr int MEMORY_SIZE = 4096;
 
@@ -43,11 +49,12 @@ struct CPUState {
     std::uint8_t st_;
 };
 
+
 class CPU {
 public:
     CPU(Display* d);
 
-    void LoadRom(std::filesystem::path& path);
+    void LoadRom(const std::filesystem::path& path);
     void Run();
 
 private:

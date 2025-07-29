@@ -2,14 +2,13 @@
 // Created by Dustin on 3/6/25.
 //
 
-#ifndef CHIP_8_OPCODES_H
-#define CHIP_8_OPCODES_H
+#ifndef CHIP_8_OPCODES_CPP
+#define CHIP_8_OPCODES_CPP
 
-#include "util.h"
+#include "../include/util.h"
 
-#include "CPU.h"
-#include "Font.h"
-#include "Keyboard.h"
+#include "../include/CPU.h"
+#include "../include/Font.h"
 
 void CPU::OP_00E0() {
     d_->ClearDisplay();
@@ -295,4 +294,4 @@ void CPU::OP_FX65(Instruction i) {
 
 
 
-#endif //CHIP_8_OPCODES_H
+#endif //CHIP_8_OPCODES_CPP
