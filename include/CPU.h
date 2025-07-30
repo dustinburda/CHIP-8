@@ -20,6 +20,10 @@
 static constexpr int REGISTER_COUNT = 16;
 static constexpr int MEMORY_SIZE = 4096;
 
+/* Nibble 1 - lowest
+ * Nibble 4 - highest
+ *
+ * */
 struct Instruction {
     explicit Instruction(std::uint16_t instruction) : instruction_{instruction} {
         nibble1_ = instruction & 0x000F;

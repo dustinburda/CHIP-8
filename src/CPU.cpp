@@ -37,12 +37,12 @@ void CPU::LoadRom(const std::filesystem::path& path) {
 
 
     std::size_t read_amount = 0xFFF - 0x200;
-    rom.read(reinterpret_cast<char *>(state_.memory_.data()), read_amount);
+    rom.read(reinterpret_cast<char *>(state_.memory_.data() + START_ADDRESS), read_amount);
 }
 
 Instruction CPU::Fetch() {
-    std::uint16_t byte1 = 0xFFF & static_cast<std::uint16_t>(state_.memory_[state_.pc_]);
-    std::uint16_t byte2 = 0xFFF & (static_cast<std::uint16_t>(state_.memory_[state_.pc_ + 1]) << 8); // CHECK THIS
+    std::uint16_t byte1 = 0xFFFF & (static_cast<std::uint16_t>(state_.memory_[state_.pc_]) << 8);
+    std::uint16_t byte2 = 0xFFFF & static_cast<std::uint16_t>(state_.memory_[state_.pc_ + 1]) ; // CHECK THIS
 
     state_.pc_ += 2;
 
@@ -57,13 +57,13 @@ void CPU::Execute(Instruction instruction) {
     std::string base_error = "Unsupported OP code: " + ss.str();
 
     // Replace this with a map from opcode to function pointer
-    switch (instruction.nibble1_) {
+    switch (instruction.nibble4_) {
         case 0x0:
-            if (instruction.nibble3_ == 0xE) {
-                if (instruction.nibble4_ == 0x0) {
+            if (instruction.nibble2_ == 0xE) {
+                if (instruction.nibble1_ == 0x0) {
                     OP_00E0();
                     return;
-                } else if (instruction.nibble4_ == 0xE) {
+                } else if (instruction.nibble1_ == 0xE) {
                     OP_00EE();
                     return;
                 }
@@ -90,33 +90,33 @@ void CPU::Execute(Instruction instruction) {
             OP_7XKK(instruction);
             return;
         case 0x8:
-            if (instruction.nibble4_ == 0x1) {
+            if (instruction.nibble1_ == 0x1) {
                 OP_8XY1(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x2) {
+            } else if (instruction.nibble1_ == 0x2) {
                 OP_8XY2(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x3) {
+            } else if (instruction.nibble1_ == 0x3) {
                 OP_8XY3(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x4) {
+            } else if (instruction.nibble1_ == 0x4) {
                 OP_8XY4(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x5) {
+            } else if (instruction.nibble1_ == 0x5) {
                 OP_8XY5(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x6) {
+            } else if (instruction.nibble1_ == 0x6) {
                 OP_8XY6(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0x7) {
+            } else if (instruction.nibble1_ == 0x7) {
                 OP_8XY7(instruction);
                 return;
-            } else if (instruction.nibble4_ == 0xE) {
+            } else if (instruction.nibble1_ == 0xE) {
                 OP_8XYE(instruction);
                 return;
             }
         case 0x9:
-            if (instruction.nibble4_ == 0x0) {
+            if (instruction.nibble1_ == 0x0) {
                 OP_9XY0(instruction);
                 return;
             }
@@ -133,39 +133,39 @@ void CPU::Execute(Instruction instruction) {
             OP_DXYN(instruction);
             return;
         case 0xE:
-            if (instruction.nibble3_ == 0x9 && instruction.nibble4_ == 0xE) {
+            if (instruction.nibble2_ == 0x9 && instruction.nibble1_ == 0xE) {
                 OP_EX9E(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0xA && instruction.nibble4_ == 0x1) {
+            } else if (instruction.nibble2_ == 0xA && instruction.nibble1_ == 0x1) {
                 OP_EXA1(instruction);
                 return;
             }
         case 0xF:
-            if (instruction.nibble3_ == 0x0 && instruction.nibble4_ == 0x7){
+            if (instruction.nibble2_ == 0x0 && instruction.nibble1_ == 0x7){
                 OP_FX07(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x0 && instruction.nibble4_ == 0xA){
+            } else if (instruction.nibble2_ == 0x0 && instruction.nibble1_ == 0xA){
                 OP_FX0A(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0x5){
+            } else if (instruction.nibble2_ == 0x1 && instruction.nibble1_ == 0x5){
                 OP_FX15(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0x8){
+            } else if (instruction.nibble2_ == 0x1 && instruction.nibble1_ == 0x8){
                 OP_FX18(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x1 && instruction.nibble4_ == 0xE){
+            } else if (instruction.nibble2_ == 0x1 && instruction.nibble1_ == 0xE){
                 OP_FX1E(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x2 && instruction.nibble4_ == 0x9){
+            } else if (instruction.nibble2_ == 0x2 && instruction.nibble1_ == 0x9){
                 OP_FX29(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x3 && instruction.nibble4_ == 0x3){
+            } else if (instruction.nibble2_ == 0x3 && instruction.nibble1_ == 0x3){
                 OP_FX33(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x5 && instruction.nibble4_ == 0x5){
+            } else if (instruction.nibble2_ == 0x5 && instruction.nibble1_ == 0x5){
                 OP_FX55(instruction);
                 return;
-            } else if (instruction.nibble3_ == 0x6 && instruction.nibble4_ == 0x5){
+            } else if (instruction.nibble2_ == 0x6 && instruction.nibble1_ == 0x5){
                 OP_FX65(instruction);
                 return;
             }
@@ -197,6 +197,7 @@ void CPU::Run() {
 
     SDLWindow w;
 
+
     while(running) {
 
         while(SDL_PollEvent(&event)) {
@@ -213,13 +214,18 @@ void CPU::Run() {
             Execute(instruction);
         }
 
+        // Dump contents of buffer to screen
+        w.RefreshDisplay(d_);
+
+
 
         auto end = std::chrono::steady_clock::now();
 
         auto cycle_duration = std::chrono::duration_cast<std::chrono::milliseconds>(start - end);
         auto sleep_time = std::chrono::milliseconds(1000) - cycle_duration;
 
-        std::this_thread::sleep_for(sleep_time);
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(sleep_time) >= std::chrono::milliseconds(0))
+            std::this_thread::sleep_for(sleep_time);
     }
 }
 

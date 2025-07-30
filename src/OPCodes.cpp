@@ -163,9 +163,9 @@ void CPU::OP_CXKK(Instruction i) {
 }
 
 void CPU::OP_DXYN(Instruction i) {
-    auto vx = i.nibble4_;
-    auto vy = i.nibble3_;
-    auto n = i.nibble2_;
+    auto vx = i.nibble3_;
+    auto vy = i.nibble2_;
+    auto n = i.nibble1_;
 
     auto x = state_.registers_[vx] % 64;
     auto y = state_.registers_[vy] % 32;
@@ -230,7 +230,7 @@ void CPU::OP_FX0A(Instruction i) {
 
     auto key = KeyDown();
 
-    if (key = std::nullopt) {
+    if (key == std::nullopt) {
         state_.pc_ -= 2;
         return;
     }
