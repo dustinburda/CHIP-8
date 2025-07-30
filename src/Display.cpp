@@ -11,14 +11,15 @@ const std::array<std::array<uint8_t , WIDTH>, HEIGHT>& Display::GetBuffer() cons
 void Display::GetRGBBuffer(std::array<std::array<Color , WIDTH>, HEIGHT>& buffer) {
     for (int y = 0; y < HEIGHT; y++)
         for (int x = 0; x < WIDTH; x++)
-            buffer[y][x] = (buffer_[y][x] == 1) ? Color {255, 255, 255 } : Color { 0, 0, 0};
+            if (buffer_[y][x])
+                buffer[y][x] = Color {255, 255, 255};
+            else
+                buffer[y][x] =Color {0, 0, 0};
 }
 
 void Display::Set(int y, int x, uint8_t byte) {
     if (y >= HEIGHT || y < 0 || x >= WIDTH || x < 0)
         throw std::logic_error("Pixel dimensions must be within display dimension!");
-
-    uint8_t pixel_val = (byte == 0x1) ? 255 : 0;
 
     buffer_[y][x] = byte;
 }

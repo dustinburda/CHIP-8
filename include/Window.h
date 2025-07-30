@@ -12,7 +12,7 @@ class SDLWindow {
 public:
     SDLWindow() {
         const int SCREEN_WIDTH = 1280;
-        const int SCREEN_HEIGHT = 720;
+        const int SCREEN_HEIGHT = 640;
 
         /* Initialise SDL */
         if( SDL_Init( SDL_INIT_EVERYTHING ) < 0){
@@ -29,17 +29,18 @@ public:
         );
 
         r_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-        SDL_RenderSetLogicalSize(r_, 64, 32);
+        SDL_RenderSetLogicalSize(r_, WIDTH, HEIGHT);
 
-        t_ = SDL_CreateTexture(r_, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
+        t_ = SDL_CreateTexture(r_, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
     }
 
     void RefreshDisplay(Display* d) {
 
         std::array<std::array<Color , WIDTH>, HEIGHT> rgb_buffer;
+        std::memset(rgb_buffer.data()->data(), 0x0, sizeof(Color) * WIDTH * HEIGHT );
         d->GetRGBBuffer(rgb_buffer);
 
-        SDL_UpdateTexture(t_, nullptr, rgb_buffer.data()->data(), WIDTH * sizeof(Color));
+        SDL_UpdateTexture(t_, nullptr, rgb_buffer.data(), WIDTH * sizeof(Color));
         SDL_RenderClear(r_);
         SDL_RenderCopy(r_, t_, NULL, NULL);
         SDL_RenderPresent(r_);

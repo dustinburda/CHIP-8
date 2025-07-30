@@ -8,8 +8,8 @@
 #include <array>
 #include <cstdint>
 
-static constexpr int HEIGHT = 32;
 static constexpr int WIDTH = 64;
+static constexpr int HEIGHT = 32;
 
 using Color = std::array<std::uint8_t, 3>;
 

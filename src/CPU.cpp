@@ -214,6 +214,7 @@ void CPU::Run() {
             Execute(instruction);
         }
 
+
         // Dump contents of buffer to screen
         w.RefreshDisplay(d_);
 
