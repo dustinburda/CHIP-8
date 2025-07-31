@@ -171,7 +171,7 @@ void CPU::OP_DXYN(Instruction i) {
     auto y = state_.registers_[vy] % 32;
 
     char sprite_buffer[32];
-    std::memcpy(sprite_buffer, state_.memory_.data(), n);
+    std::memcpy(sprite_buffer, state_.memory_.data() + state_.i_, n);
 
     for (int i_y = 0; i_y < n; i_y++) {
         auto byte = sprite_buffer[i_y];
