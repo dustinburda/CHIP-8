@@ -1,3 +1,5 @@
 cmake-build-*
 emu.pdf
 roms
+.idea
+.DS_Store
