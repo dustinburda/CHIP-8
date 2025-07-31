@@ -11,10 +11,7 @@ const std::array<std::array<uint8_t , WIDTH>, HEIGHT>& Display::GetBuffer() cons
 void Display::GetRGBBuffer(std::array<std::array<Color , WIDTH>, HEIGHT>& buffer) {
     for (int y = 0; y < HEIGHT; y++)
         for (int x = 0; x < WIDTH; x++)
-            if (buffer_[y][x])
-                buffer[y][x] = Color {255, 255, 255};
-            else
-                buffer[y][x] =Color {0, 0, 0};
+            buffer[y][x] = buffer_[y][x] ? Color {255, 255, 255} : Color {0, 0, 0};
 }
 
 void Display::Set(int y, int x, uint8_t byte) {

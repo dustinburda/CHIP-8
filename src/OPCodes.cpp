@@ -183,7 +183,7 @@ void CPU::OP_DXYN(Instruction i) {
                 break;
 
             auto old_pixel_val = d_->Get(y_pos, x_pos);
-            auto new_pixel_val = ((byte && (1 << (7 - i_x))) >> (7 - i_x)) ^ old_pixel_val;
+            auto new_pixel_val = ((byte & (1 << (7 - i_x))) >> (7 - i_x)) ^ old_pixel_val;
 
             if (old_pixel_val == 1 && new_pixel_val == 0)
                 state_.registers_[0xF] = 1;
