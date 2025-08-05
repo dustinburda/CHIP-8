@@ -1,7 +1,7 @@
 #include "../include/CPU.h"
 
 int main(int argc, char** argv) {
-    std::string rom_path = "../roms/flags.ch8";
+    std::string rom_path = "../roms/corax.ch8";
 
     if (argc == 2)
         rom_path = argv[1];

@@ -216,10 +216,10 @@ void CPU::Run() {
         for(int i = 0; i < speed_; i++) {
             auto instruction = Fetch();
             Execute(instruction);
-        }
 
-        // Dump contents of buffer to screen
-        w.RefreshDisplay(d_);
+            // Dump contents of buffer to screen
+            w.RefreshDisplay(d_);
+        }
 
         auto end = std::chrono::steady_clock::now();
 
