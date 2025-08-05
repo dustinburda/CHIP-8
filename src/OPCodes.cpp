@@ -104,9 +104,11 @@ void CPU::OP_8XY4(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
+    auto reg_x = state_.registers_[X];
+    auto reg_y = state_.registers_[Y];
 
-    state_.registers_[X] += state_.registers_[Y];
-    state_.registers_[0xF] = (state_.registers_[X] > 255 -  state_.registers_[Y]);
+    state_.registers_[X] = reg_x + reg_y;
+    state_.registers_[0xF] = (reg_x > 255 -  reg_y);
 }
 
 void CPU::OP_8XY5(Instruction i) {
@@ -144,7 +146,7 @@ void CPU::OP_8XY7(Instruction i) {
 void CPU::OP_8XYE(Instruction i) {
     uint8_t X = i.nibble3_;
 
-    uint8_t MSB = (X & (0x1 << 7)) >> 7;
+    uint8_t MSB = (state_.registers_[X] & (0x1 << 7)) >> 7;
     state_.registers_[X] <<= 1;
     state_.registers_[0xF] = MSB;
 }
