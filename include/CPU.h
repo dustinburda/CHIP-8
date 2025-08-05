@@ -74,6 +74,7 @@ private:
     void OP_5XY0(Instruction i);
     void OP_6XKK(Instruction i);
     void OP_7XKK(Instruction i);
+    void OP_8XY0(Instruction i);
     void OP_8XY1(Instruction i);
     void OP_8XY2(Instruction i);
     void OP_8XY3(Instruction i);

@@ -1,13 +1,12 @@
 #include "../include/CPU.h"
 
 int main(int argc, char** argv) {
-    std::string rom_path = "../roms/chip8-splash.ch8";
+    std::string rom_path = "../roms/flags.ch8";
 
-    if (argc == 2) {
+    if (argc == 2)
         rom_path = argv[1];
-    } else if (rom_path == "" ) {
-        throw std::logic_error("Must only provide a single path parameter to ROM file!");
-    }
+    else if (rom_path == "" )
+        throw std::logic_error("Must only provide a single parameter: path to ROM file!");
 
     CPU Chip8(Display::GetInstance());
 

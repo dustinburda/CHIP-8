@@ -90,6 +90,10 @@ void CPU::Execute(Instruction instruction) {
             OP_7XKK(instruction);
             return;
         case 0x8:
+            if (instruction.nibble1_ == 0x0) {
+                OP_8XY0(instruction);
+                return;
+            }
             if (instruction.nibble1_ == 0x1) {
                 OP_8XY1(instruction);
                 return;

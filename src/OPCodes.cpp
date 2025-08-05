@@ -72,48 +72,59 @@ void CPU::OP_7XKK(Instruction i) {
     state_.registers_[X] += KK;
 }
 
-void CPU::OP_8XY1(Instruction i) {
+void CPU::OP_8XY0(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
     state_.registers_[X] = state_.registers_[Y];
 }
 
-void CPU::OP_8XY2(Instruction i) {
+void CPU::OP_8XY1(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
     state_.registers_[X] = (state_.registers_[X] | state_.registers_[Y]);
+}
+
+void CPU::OP_8XY2(Instruction i) {
+    uint8_t X = i.nibble3_;
+    uint8_t Y = i.nibble2_;
+
+    state_.registers_[X] = (state_.registers_[X] & state_.registers_[Y]);
 }
 
 void CPU::OP_8XY3(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
-    state_.registers_[X] = (state_.registers_[X] | state_.registers_[Y]);
+    state_.registers_[X] = (state_.registers_[X] ^ state_.registers_[Y]);
 }
 
 void CPU::OP_8XY4(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
-    state_.registers_[0xF] = (X > 255 - Y);
+
     state_.registers_[X] += state_.registers_[Y];
+    state_.registers_[0xF] = (state_.registers_[X] > 255 -  state_.registers_[Y]);
 }
 
 void CPU::OP_8XY5(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
+    auto reg_x = state_.registers_[X];
+    auto reg_y = state_.registers_[Y];
+
     // TODO: GEQ or EQ?
-    state_.registers_[0xF] = (X > Y);
-    state_.registers_[X] -= state_.registers_[Y];
+    state_.registers_[X] = reg_x - reg_y;
+    state_.registers_[0xF] = (reg_x >= reg_y);
 }
 
 void CPU::OP_8XY6(Instruction i) {
     uint8_t X = i.nibble3_;
 
-    uint8_t LSB = X & 0x1;
+    uint8_t LSB =  state_.registers_[X] & 0x1;
     state_.registers_[X] >>= 1;
     state_.registers_[0xF] = LSB;
 }
@@ -122,17 +133,20 @@ void CPU::OP_8XY7(Instruction i) {
     uint8_t X = i.nibble3_;
     uint8_t Y = i.nibble2_;
 
+    auto reg_x = state_.registers_[X];
+    auto reg_y = state_.registers_[Y];
+
     // TODO: GEQ or EQ?
-    state_.registers_[0xF] = (Y > X);
-    state_.registers_[Y] -= state_.registers_[X];
+    state_.registers_[X] = reg_y - reg_x;
+    state_.registers_[0xF] = (reg_y >= reg_x);
 }
 
 void CPU::OP_8XYE(Instruction i) {
     uint8_t X = i.nibble3_;
 
-    uint8_t LSB = (X & (0x1 << 7)) >> 7;
+    uint8_t MSB = (X & (0x1 << 7)) >> 7;
     state_.registers_[X] <<= 1;
-    state_.registers_[0xF] = LSB;
+    state_.registers_[0xF] = MSB;
 }
 
 void CPU::OP_9XY0(Instruction i) {
@@ -175,23 +189,31 @@ void CPU::OP_DXYN(Instruction i) {
 
     for (int i_y = 0; i_y < n; i_y++) {
         auto byte = sprite_buffer[i_y];
+        auto y_pos = y + i_y;
+
         for(int i_x = 0; i_x < 8; i_x++) {
             auto x_pos = x + i_x;
-            auto y_pos = y + i_y;
 
-            if (x_pos >= 64)
-                break;
+            auto display_pixel = d_->Get(y_pos, x_pos);
 
-            auto old_pixel_val = d_->Get(y_pos, x_pos);
-            auto new_pixel_val = ((byte & (1 << (7 - i_x))) >> (7 - i_x)) ^ old_pixel_val;
+            auto mask = 1 << (7 - i_x);
+            auto shift = (7 - i_x);
+            auto sprite_pixel = (byte & mask) >> shift;
 
-            if (old_pixel_val == 1 && new_pixel_val == 0)
+            auto new_pixel_val = sprite_pixel ^ display_pixel;
+
+            if (new_pixel_val == 0 && display_pixel == 1)
                 state_.registers_[0xF] = 1;
+            else
+                state_.registers_[0xF] = 0;
 
             d_->Set(y_pos, x_pos, new_pixel_val);
+
+            if (x_pos >= 63)
+                break;
         }
 
-        if (y >= 32)
+        if (y_pos >= 31)
             break;
     }
 }
@@ -264,21 +286,23 @@ void CPU::OP_FX29(Instruction i) {
 }
 
 void CPU::OP_FX33(Instruction i) {
-    std::uint8_t X = i.nibble3_;
+    std::uint8_t Vx = i.nibble3_;
+    std::uint8_t num = state_.registers_[Vx];
 
-    std::uint8_t ones = X % 10;
-    std::uint8_t tens = X % 100;
-    std::uint8_t hundreds = X % 1000;
+    std::uint8_t ones = num % 10;
+    std::uint8_t tens = (num / 10) % 10;
+    std::uint8_t hundreds = (num / 100) % 10;
 
-    state_.memory_[state_.i_] = static_cast<std::byte>(ones);
-    state_.memory_[state_.i_]= static_cast<std::byte>(tens);
+    state_.memory_[state_.i_ + 2] = static_cast<std::byte>(ones);
+    state_.memory_[state_.i_ + 1]= static_cast<std::byte>(tens);
     state_.memory_[state_.i_] = static_cast<std::byte>(hundreds);
 }
 
 void CPU::OP_FX55(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
-    for (int offset = 0x0; offset < X; offset++) {
+    for (int offset = 0x0; offset <= X; offset++) {
+        auto register_val = state_.registers_[offset];
         state_.memory_[state_.i_ + offset] = static_cast<std::byte>(state_.registers_[offset]);
     }
 }
@@ -286,7 +310,8 @@ void CPU::OP_FX55(Instruction i) {
 void CPU::OP_FX65(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
-    for (int offset = 0x0; offset < X; offset++) {
+    for (int offset = 0x0; offset <= X; offset++) {
+        auto memory_val = static_cast<uint8_t>(state_.memory_[state_.i_ + offset]);
         state_.registers_[offset] = static_cast<std::uint8_t>(state_.memory_[state_.i_ + offset]);
     }
 }
