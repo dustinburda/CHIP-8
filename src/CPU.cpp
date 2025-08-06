@@ -2,7 +2,7 @@
 // Created by Dustin on 3/5/25.
 //
 
-#include "../include/CPU.h"
+#include "../include/CHIP8.h"
 
 #include <chrono>
 #include <cstring>
@@ -16,7 +16,7 @@
 
 static constexpr int START_ADDRESS = 0x200;
 
-CPUState::CPUState() {
+CPU::CPU() {
     std::memset(registers_.data(), 0x0, sizeof(std::uint8_t) * REGISTER_COUNT);
     std::memcpy(memory_.data(), FONT_DATA.data(), sizeof(std::uint8_t) * FONT_DATA.size() );
     std::memset(memory_.data() + START_ADDRESS, 0x0, sizeof(std::byte) * (MEMORY_SIZE - START_ADDRESS));
@@ -25,10 +25,10 @@ CPUState::CPUState() {
     pc_ = START_ADDRESS;
 }
 
-CPU::CPU(Display* d) : d_{d}, speed_{700} {}
+CHIP8::CHIP8(Display* d) : d_{d}, draw_flag{false} {}
 
-void CPU::LoadRom(const std::filesystem::path& path) {
-    std::memset(state_.memory_.data(), 0x0, 0xFFF);
+void CHIP8::LoadRom(const std::filesystem::path& path) {
+    std::memset(cpu_.memory_.data(), 0x0, 0xFFF);
 
     std::ifstream rom{path};
 
@@ -37,24 +37,27 @@ void CPU::LoadRom(const std::filesystem::path& path) {
 
 
     std::size_t read_amount = 0xFFF - 0x200;
-    rom.read(reinterpret_cast<char *>(state_.memory_.data() + START_ADDRESS), read_amount);
+    rom.read(reinterpret_cast<char *>(cpu_.memory_.data() + START_ADDRESS), read_amount);
 }
 
-Instruction CPU::Fetch() {
-    std::uint16_t byte1 = 0xFFFF & (static_cast<std::uint16_t>(state_.memory_[state_.pc_]) << 8);
-    std::uint16_t byte2 = 0xFFFF & static_cast<std::uint16_t>(state_.memory_[state_.pc_ + 1]) ; // CHECK THIS
+Instruction CHIP8::Fetch() {
+    std::uint16_t byte1 = 0xFFFF & (static_cast<std::uint16_t>(cpu_.memory_[cpu_.pc_]) << 8);
+    std::uint16_t byte2 = 0xFFFF & static_cast<std::uint16_t>(cpu_.memory_[cpu_.pc_ + 1]) ; // CHECK THIS
 
-    state_.pc_ += 2;
+    cpu_.pc_ += 2;
 
     std::uint16_t op = byte1 | byte2;
 
     return Instruction{op};
 }
 
-void CPU::Execute(Instruction instruction) {
+void CHIP8::Execute(Instruction instruction) {
     std::stringstream ss;
     ss << std::hex << instruction.instruction_;
     std::string base_error = "Unsupported OP code: " + ss.str();
+
+    if (KeypadKey_State[0x1] == KeyState::KeyDown)
+        std::cout << std::hex << instruction.instruction_ << std::endl;
 
     // Replace this with a map from opcode to function pointer
     switch (instruction.nibble4_) {
@@ -179,55 +182,55 @@ void CPU::Execute(Instruction instruction) {
 }
 
 void HandleInput(SDL_Event& event, bool& running) {
+    auto SDL_Key = event.key.keysym.sym;
+
     if (event.type == SDL_QUIT) {
         std::cout << "Quitting";
         running = false;
-    } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-        auto SDL_Key = event.key.keysym.sym;
+    } else if (event.type == SDL_KEYDOWN) {
 
         //  std::cout << SDL_GetKeyName(SDL_Key) << "  " << ((event.type == SDL_KEYDOWN) ? " Pressed" : " Released") << "\n";
         if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
-            auto KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
-            KeypadKey_State[KeypadKey] = (event.type == SDL_KEYDOWN) ? KeyState::KeyDown
-                                                                     : KeyState::KeyUp;
+            std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
+            KeypadKey_State[KeypadKey] =KeyState::KeyDown;
+        }
+    } else if (event.type == SDL_KEYUP) {
+        if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
+            std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
+            KeypadKey_State[KeypadKey] = KeyState::KeyUp;
         }
     }
 
 }
 
-void CPU::Run() {
-    SDL_Event event;
+void CHIP8::Run() {
     bool running = true;
-
     SDLWindow w;
 
-
     while(running) {
-
-        while(SDL_PollEvent(&event)) {
-            HandleInput(event, running);
-        }
-
-        // Time One second
-        // Perform speed_ number of instructions
-        // sleep for the rest
         auto start = std::chrono::steady_clock::now();
 
-        for(int i = 0; i < speed_; i++) {
-            auto instruction = Fetch();
-            Execute(instruction);
+        auto instruction = Fetch();
+        Execute(instruction);
 
-            // Dump contents of buffer to screen
+        SDL_Event event;
+        while(SDL_PollEvent(&event))
+            HandleInput(event, running);
+
+
+        // Dump contents of buffer to screen
+        if (draw_flag)
+        {
             w.RefreshDisplay(d_);
+            draw_flag = false;
         }
 
         auto end = std::chrono::steady_clock::now();
+        auto cycle_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        auto sleep_time = std::chrono::microseconds(1428) - cycle_duration;
+        std::this_thread::sleep_for(sleep_time);
 
-        auto cycle_duration = std::chrono::duration_cast<std::chrono::milliseconds>(start - end);
-        auto sleep_time = std::chrono::milliseconds(1000) - cycle_duration;
-
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(sleep_time) >= std::chrono::milliseconds(0))
-            std::this_thread::sleep_for(sleep_time);
+        std::cout << cycle_duration.count() << std::endl;
     }
 }
 

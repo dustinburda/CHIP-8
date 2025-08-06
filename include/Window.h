@@ -31,16 +31,20 @@ public:
         r_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
         SDL_RenderSetLogicalSize(r_, WIDTH, HEIGHT);
 
-        t_ = SDL_CreateTexture(r_, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+        t_ = SDL_CreateTexture(r_, SDL_PIXELFORMAT_ABGR32, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
     }
 
     void RefreshDisplay(Display* d) {
+        uint32_t buffer[64 * 32];
 
-        std::array<std::array<Color , WIDTH>, HEIGHT> rgb_buffer;
-        std::memset(rgb_buffer.data()->data(), 0x0, sizeof(Color) * WIDTH * HEIGHT );
-        d->GetRGBBuffer(rgb_buffer);
+        auto& d_buffer = d->GetBuffer();
+        for (int i = 0; i < HEIGHT; i++) {
+            for(int j = 0; j < WIDTH; j++) {
+                buffer[i * 64 + j] = (d_buffer[i][j] == 0x1) ? 0xFFFFFFFF : 0x00000000;
+            }
+        }
 
-        SDL_UpdateTexture(t_, nullptr, rgb_buffer.data(), WIDTH * sizeof(Color));
+        SDL_UpdateTexture(t_, nullptr, buffer, WIDTH * sizeof(uint32_t));
         SDL_RenderClear(r_);
         SDL_RenderCopy(r_, t_, NULL, NULL);
         SDL_RenderPresent(r_);

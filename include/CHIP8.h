@@ -2,8 +2,8 @@
 // Created by Dustin on 3/5/25.
 //
 
-#ifndef CHIP_8_CPU_H
-#define CHIP_8_CPU_H
+#ifndef CHIP_8_CHIP8_H
+#define CHIP_8_CHIP8_H
 
 #include "Display.h"
 
@@ -39,8 +39,8 @@ struct Instruction {
     std::uint8_t nibble4_;
 };
 
-struct CPUState {
-    CPUState();
+struct CPU {
+    CPU();
 
     std::array<std::uint8_t, REGISTER_COUNT> registers_;
     std::array<std::byte, MEMORY_SIZE> memory_;
@@ -54,9 +54,9 @@ struct CPUState {
 };
 
 
-class CPU {
+class CHIP8 {
 public:
-    CPU(Display* d);
+    CHIP8(Display* d);
 
     void LoadRom(const std::filesystem::path& path);
     void Run();
@@ -100,12 +100,11 @@ private:
     void OP_FX55(Instruction i);
     void OP_FX65(Instruction i);
 
-    CPUState state_;
+    CPU cpu_;
     Display* d_;
-
-    std::uint16_t speed_ {700};
+    bool draw_flag;
 };
 
 
 
-#endif //CHIP_8_CPU_H
+#endif //CHIP_8_CHIP8_H
