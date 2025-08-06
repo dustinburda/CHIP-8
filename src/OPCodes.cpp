@@ -225,9 +225,6 @@ void CHIP8::OP_DXYN(Instruction i) {
 void CHIP8::OP_EX9E(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
-    if (KeypadKey_State[0x1] == KeyState::KeyDown)
-        std::cout << "ITS ONE BABY!" << std::endl;
-
     if(KeypadKey_State[cpu_.registers_[X]] == KeyState::KeyDown)
         cpu_.pc_ += 2;
 }

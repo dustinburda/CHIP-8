@@ -56,8 +56,7 @@ void CHIP8::Execute(Instruction instruction) {
     ss << std::hex << instruction.instruction_;
     std::string base_error = "Unsupported OP code: " + ss.str();
 
-    if (KeypadKey_State[0x1] == KeyState::KeyDown)
-        std::cout << std::hex << instruction.instruction_ << std::endl;
+    std::cout << std::hex << instruction.instruction_ << std::endl;
 
     // Replace this with a map from opcode to function pointer
     switch (instruction.nibble4_) {
@@ -207,30 +206,46 @@ void CHIP8::Run() {
     bool running = true;
     SDLWindow w;
 
+    int cycle_count = 0;
     while(running) {
         auto start = std::chrono::steady_clock::now();
 
         auto instruction = Fetch();
         Execute(instruction);
 
+        std::cout << "Registers: " << std::endl;
+        for (auto & reg : cpu_.registers_) {
+            std::cout << std::hex << static_cast<int>(reg) << " ";
+        }
+        std::cout << std::endl;
+        std::cout << std::endl;
+
         SDL_Event event;
         while(SDL_PollEvent(&event))
             HandleInput(event, running);
 
 
-        // Dump contents of buffer to screen
-        if (draw_flag)
-        {
-            w.RefreshDisplay(d_);
+    // Dump contents of buffer to screen
+
+        // std::cout << "=======   " << refresh_count << "   =======" << std::endl;
+        if (draw_flag) {
             draw_flag = false;
+            w.RefreshDisplay(d_);
         }
 
         auto end = std::chrono::steady_clock::now();
         auto cycle_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        auto sleep_time = std::chrono::microseconds(1428) - cycle_duration;
-        std::this_thread::sleep_for(sleep_time);
 
-        std::cout << cycle_duration.count() << std::endl;
+        cycle_count++;
+
+        if (cycle_count == 700) {
+            cycle_count = 0;
+
+            if (cpu_.dt_ > 0)
+                cpu_.dt_--;
+        }
+
+
     }
 }
 

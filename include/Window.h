@@ -41,8 +41,13 @@ public:
         for (int i = 0; i < HEIGHT; i++) {
             for(int j = 0; j < WIDTH; j++) {
                 buffer[i * 64 + j] = (d_buffer[i][j] == 0x1) ? 0xFFFFFFFF : 0x00000000;
+                // std::cout << static_cast<int>(d_buffer[i][j]) << " ";
             }
+            // std::cout << std::endl;
         }
+
+//        std::cout << std::endl;
+//        std::cout << std::endl;
 
         SDL_UpdateTexture(t_, nullptr, buffer, WIDTH * sizeof(uint32_t));
         SDL_RenderClear(r_);
