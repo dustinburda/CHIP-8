@@ -232,6 +232,10 @@ void CHIP8::OP_EX9E(Instruction i) {
 void CHIP8::OP_EXA1(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
+    std::cout << KeypadKey_State.size() << std::endl;
+    for (auto [k, v] : KeypadKey_State)
+        std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(v) << KeypadKey_State[k] << std::endl;
+
     if(KeypadKey_State[cpu_.registers_[X]] == KeyState::KeyUp)
         cpu_.pc_ += 2;
 }

@@ -238,7 +238,7 @@ void CHIP8::Run() {
 
         cycle_count++;
 
-        if (cycle_count == 700) {
+        if (cycle_count == 350) {
             cycle_count = 0;
 
             if (cpu_.dt_ > 0)

@@ -21,7 +21,7 @@ extern std::unordered_map<SDL_Keycode, std::uint8_t> KeyboardKey_KeypadKey = {
 };
 
 
-std::unordered_map<std::uint8_t, KeyState> KeypadKey_State {
+extern std::unordered_map<std::uint8_t, KeyState> KeypadKey_State {
         {0x1, KeyState::KeyUp},
         {0x2, KeyState::KeyUp},
         {0x3, KeyState::KeyUp},
