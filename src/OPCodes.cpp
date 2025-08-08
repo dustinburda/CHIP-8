@@ -85,6 +85,9 @@ void CHIP8::OP_8XY1(Instruction i) {
     uint8_t Y = i.nibble2_;
 
     cpu_.registers_[X] = (cpu_.registers_[X] | cpu_.registers_[Y]);
+
+    // Optional behavior
+    cpu_.registers_[0xF] = 0x0;
 }
 
 void CHIP8::OP_8XY2(Instruction i) {
@@ -92,6 +95,9 @@ void CHIP8::OP_8XY2(Instruction i) {
     uint8_t Y = i.nibble2_;
 
     cpu_.registers_[X] = (cpu_.registers_[X] & cpu_.registers_[Y]);
+
+    // Optional behavior
+    cpu_.registers_[0xF] = 0x0;
 }
 
 void CHIP8::OP_8XY3(Instruction i) {
@@ -99,6 +105,9 @@ void CHIP8::OP_8XY3(Instruction i) {
     uint8_t Y = i.nibble2_;
 
     cpu_.registers_[X] = (cpu_.registers_[X] ^ cpu_.registers_[Y]);
+
+    // Optional behavior
+    cpu_.registers_[0xF] = 0x0;
 }
 
 void CHIP8::OP_8XY4(Instruction i) {
@@ -126,6 +135,10 @@ void CHIP8::OP_8XY5(Instruction i) {
 
 void CHIP8::OP_8XY6(Instruction i) {
     uint8_t X = i.nibble3_;
+    uint8_t Y = i.nibble2_;
+
+    // Optional behavior
+    cpu_.registers_[X] = cpu_.registers_[Y];
 
     uint8_t LSB = cpu_.registers_[X] & 0x1;
     cpu_.registers_[X] >>= 1;
@@ -146,6 +159,10 @@ void CHIP8::OP_8XY7(Instruction i) {
 
 void CHIP8::OP_8XYE(Instruction i) {
     uint8_t X = i.nibble3_;
+    uint8_t Y = i.nibble2_;
+
+    // Optional behavior
+    cpu_.registers_[X] = cpu_.registers_[Y];
 
     uint8_t MSB = (cpu_.registers_[X] & (0x1 << 7)) >> 7;
     cpu_.registers_[X] <<= 1;
@@ -225,6 +242,11 @@ void CHIP8::OP_DXYN(Instruction i) {
 void CHIP8::OP_EX9E(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
+//    std::cout << KeypadKey_State.size() << std::endl;
+//    for (auto [k, v] : KeypadKey_State)
+//        std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
+//    std::cout << std::endl;
+
     if(KeypadKey_State[cpu_.registers_[X]] == KeyState::KeyDown)
         cpu_.pc_ += 2;
 }
@@ -232,9 +254,10 @@ void CHIP8::OP_EX9E(Instruction i) {
 void CHIP8::OP_EXA1(Instruction i) {
     std::uint8_t X = i.nibble3_;
 
-    std::cout << KeypadKey_State.size() << std::endl;
-    for (auto [k, v] : KeypadKey_State)
-        std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(v) << KeypadKey_State[k] << std::endl;
+//    std::cout << KeypadKey_State.size() << std::endl;
+//    for (auto [k, v] : KeypadKey_State)
+//        std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
+//    std::cout << std::endl;
 
     if(KeypadKey_State[cpu_.registers_[X]] == KeyState::KeyUp)
         cpu_.pc_ += 2;
@@ -313,6 +336,8 @@ void CHIP8::OP_FX55(Instruction i) {
         auto register_val = cpu_.registers_[offset];
         cpu_.memory_[cpu_.i_ + offset] = static_cast<std::byte>(cpu_.registers_[offset]);
     }
+
+    cpu_.i_ += cpu_.registers_[X] + 1;
 }
 
 void CHIP8::OP_FX65(Instruction i) {
@@ -322,6 +347,8 @@ void CHIP8::OP_FX65(Instruction i) {
         auto memory_val = static_cast<uint8_t>(cpu_.memory_[cpu_.i_ + offset]);
         cpu_.registers_[offset] = static_cast<std::uint8_t>(cpu_.memory_[cpu_.i_ + offset]);
     }
+
+    cpu_.i_ += cpu_.registers_[X] + 1;
 }
 
 

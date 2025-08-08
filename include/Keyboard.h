@@ -15,8 +15,8 @@
 extern std::unordered_map<SDL_Keycode, std::uint8_t> KeyboardKey_KeypadKey;
 
 enum class KeyState {
-    KeyDown,
-    KeyUp
+    KeyUp,
+    KeyDown
 };
 
 extern std::unordered_map<std::uint8_t, KeyState> KeypadKey_State;

@@ -187,17 +187,32 @@ void HandleInput(SDL_Event& event, bool& running) {
         std::cout << "Quitting";
         running = false;
     } else if (event.type == SDL_KEYDOWN) {
+//        std::cout << KeypadKey_State.size() << std::endl;
+//        for (auto [k, v] : KeypadKey_State)
+//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
+//        std::cout << std::endl;
 
         //  std::cout << SDL_GetKeyName(SDL_Key) << "  " << ((event.type == SDL_KEYDOWN) ? " Pressed" : " Released") << "\n";
         if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
             std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
             KeypadKey_State[KeypadKey] =KeyState::KeyDown;
         }
+
+//        std::cout << KeypadKey_State.size() << std::endl;
+//        for (auto [k, v] : KeypadKey_State)
+//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
+//        std::cout << std::endl;
+
     } else if (event.type == SDL_KEYUP) {
         if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
             std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
             KeypadKey_State[KeypadKey] = KeyState::KeyUp;
         }
+
+//        std::cout << KeypadKey_State.size() << std::endl;
+//        for (auto [k, v] : KeypadKey_State)
+//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
+//        std::cout << std::endl;
     }
 
 }
@@ -213,12 +228,12 @@ void CHIP8::Run() {
         auto instruction = Fetch();
         Execute(instruction);
 
-        std::cout << "Registers: " << std::endl;
-        for (auto & reg : cpu_.registers_) {
-            std::cout << std::hex << static_cast<int>(reg) << " ";
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
+//        std::cout << "Registers: " << std::endl;
+//        for (auto & reg : cpu_.registers_) {
+//            std::cout << std::hex << static_cast<int>(reg) << " ";
+//        }
+//        std::cout << std::endl;
+//        std::cout << std::endl;
 
         SDL_Event event;
         while(SDL_PollEvent(&event))
@@ -238,7 +253,7 @@ void CHIP8::Run() {
 
         cycle_count++;
 
-        if (cycle_count == 350) {
+        if (cycle_count == 10) {
             cycle_count = 0;
 
             if (cpu_.dt_ > 0)
