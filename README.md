@@ -12,10 +12,15 @@ This is an interpreter for the CHIP-8 programming language developed by Joseph W
 
 ## Technologies Used
 * C++ 17
+* SDL
 
 ## Building
 
-### Dependencies
+1. Clone the repo
+
+`git clone https://github.com/dustinburda/CHIP-8.git`
+
+2. Install dependencies
 
 SDL2: `brew install sdl2`
 <br>
@@ -23,11 +28,22 @@ SDL2_TTF: `brew install sdl2_image`
 <br>
 SDL2_Image: `brew install sdl2_image`
 
-## Usage
+3Run the follow commands to build the system
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make 
+```
 
-`./chip8 <ROM file>`
+4. Run the executable with your desired CHIP-8 ROM
+
+`./CHIP-8 ./pong.ch8`
+
+
+
 
 
 ## Project Status
-- Project is: _in progress_.
+- Project is: _Done_.
 
