@@ -20,6 +20,9 @@
 static constexpr int REGISTER_COUNT = 16;
 static constexpr int MEMORY_SIZE = 4096;
 
+static constexpr int CPU_FREQUENCY = 500; // Instructions per second
+static constexpr int TIMER_FREQUENCY = 60; // Timer ticks per second
+
 /* Nibble 1 - lowest
  * Nibble 4 - highest
  *

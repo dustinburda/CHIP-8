@@ -23,12 +23,14 @@ CPU::CPU() {
 
     i_ = 0x0;
     pc_ = START_ADDRESS;
+    dt_ = 0x0;
+    st_ = 0x0;
 }
 
 CHIP8::CHIP8(Display* d) : d_{d}, draw_flag{false} {}
 
 void CHIP8::LoadRom(const std::filesystem::path& path) {
-    std::memset(cpu_.memory_.data(), 0x0, 0xFFF);
+
 
     std::ifstream rom{path};
 
@@ -95,8 +97,7 @@ void CHIP8::Execute(Instruction instruction) {
             if (instruction.nibble1_ == 0x0) {
                 OP_8XY0(instruction);
                 return;
-            }
-            if (instruction.nibble1_ == 0x1) {
+            } else if (instruction.nibble1_ == 0x1) {
                 OP_8XY1(instruction);
                 return;
             } else if (instruction.nibble1_ == 0x2) {
@@ -187,32 +188,16 @@ void HandleInput(SDL_Event& event, bool& running) {
         std::cout << "Quitting";
         running = false;
     } else if (event.type == SDL_KEYDOWN) {
-//        std::cout << KeypadKey_State.size() << std::endl;
-//        for (auto [k, v] : KeypadKey_State)
-//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
-//        std::cout << std::endl;
-
-        //  std::cout << SDL_GetKeyName(SDL_Key) << "  " << ((event.type == SDL_KEYDOWN) ? " Pressed" : " Released") << "\n";
         if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
             std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
             KeypadKey_State[KeypadKey] =KeyState::KeyDown;
         }
-
-//        std::cout << KeypadKey_State.size() << std::endl;
-//        for (auto [k, v] : KeypadKey_State)
-//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
-//        std::cout << std::endl;
 
     } else if (event.type == SDL_KEYUP) {
         if (KeyboardKey_KeypadKey.count(SDL_Key) > 0) {
             std::uint8_t KeypadKey = KeyboardKey_KeypadKey[SDL_Key];
             KeypadKey_State[KeypadKey] = KeyState::KeyUp;
         }
-
-//        std::cout << KeypadKey_State.size() << std::endl;
-//        for (auto [k, v] : KeypadKey_State)
-//            std::cout << static_cast<int>(KeypadKey_State[k]) << "  " << static_cast<int>(k) << " " << static_cast<int>(v) << " " << static_cast<int>(KeypadKey_State[k]) << std::endl;
-//        std::cout << std::endl;
     }
 
 }
@@ -221,46 +206,47 @@ void CHIP8::Run() {
     bool running = true;
     SDLWindow w;
 
-    int cycle_count = 0;
-    while(running) {
+    const double cpu_step   = 1.0 / CPU_FREQUENCY;
+    const double timer_step = 1.0 / TIMER_FREQUENCY;
+
+    auto last_time = std::chrono::steady_clock::now();
+
+    double cpu_accumulator   = 0.0;
+    double timer_accumulator = 0.0;
+
+    while (running) {
         auto start = std::chrono::steady_clock::now();
+        std::chrono::duration<double> frame_time = start - last_time;
+        last_time = start;
 
-        auto instruction = Fetch();
-        Execute(instruction);
+        double dt = frame_time.count();
 
-//        std::cout << "Registers: " << std::endl;
-//        for (auto & reg : cpu_.registers_) {
-//            std::cout << std::hex << static_cast<int>(reg) << " ";
-//        }
-//        std::cout << std::endl;
-//        std::cout << std::endl;
+        cpu_accumulator   += dt;
+        timer_accumulator += dt;
+
+        while (cpu_accumulator >= cpu_step) {
+            auto instruction = Fetch();
+            Execute(instruction);
+
+            cpu_accumulator -= cpu_step;
+        }
+
+        while (timer_accumulator >= timer_step) {
+            if (cpu_.dt_ > 0)
+                cpu_.dt_--;
+            if (cpu_.st_ > 0)
+                cpu_.st_--;
+
+            timer_accumulator -= timer_step;
+        }
 
         SDL_Event event;
-        while(SDL_PollEvent(&event))
+        while (SDL_PollEvent(&event))
             HandleInput(event, running);
 
-
-    // Dump contents of buffer to screen
-
-        // std::cout << "=======   " << refresh_count << "   =======" << std::endl;
         if (draw_flag) {
             draw_flag = false;
             w.RefreshDisplay(d_);
         }
-
-        auto end = std::chrono::steady_clock::now();
-        auto cycle_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-        cycle_count++;
-
-        if (cycle_count == 10) {
-            cycle_count = 0;
-
-            if (cpu_.dt_ > 0)
-                cpu_.dt_--;
-        }
-
-
     }
 }
-
