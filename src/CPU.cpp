@@ -30,8 +30,6 @@ CPU::CPU() {
 CHIP8::CHIP8(Display* d) : d_{d}, draw_flag{false} {}
 
 void CHIP8::LoadRom(const std::filesystem::path& path) {
-
-
     std::ifstream rom{path};
 
     if(!rom.is_open())
@@ -206,13 +204,7 @@ void CHIP8::Run() {
     bool running = true;
     SDLWindow w;
 
-    const double cpu_step   = 1.0 / CPU_FREQUENCY;
-    const double timer_step = 1.0 / TIMER_FREQUENCY;
-
     auto last_time = std::chrono::steady_clock::now();
-
-    double cpu_accumulator   = 0.0;
-    double timer_accumulator = 0.0;
 
     while (running) {
         auto start = std::chrono::steady_clock::now();
@@ -221,23 +213,16 @@ void CHIP8::Run() {
 
         double dt = frame_time.count();
 
-        cpu_accumulator   += dt;
-        timer_accumulator += dt;
-
-        while (cpu_accumulator >= cpu_step) {
+        for (auto i_c = dt * CPU_FREQUENCY; i_c >= 0; i_c--) {
             auto instruction = Fetch();
             Execute(instruction);
-
-            cpu_accumulator -= cpu_step;
         }
 
-        while (timer_accumulator >= timer_step) {
+        for (auto i_t = dt * TIMER_FREQUENCY; i_t >= 0; i_t--) {
             if (cpu_.dt_ > 0)
                 cpu_.dt_--;
             if (cpu_.st_ > 0)
                 cpu_.st_--;
-
-            timer_accumulator -= timer_step;
         }
 
         SDL_Event event;
