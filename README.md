@@ -4,7 +4,7 @@
 
 This is an interpreter for the CHIP-8 programming language developed by Joseph Weisbecker in the 1970's. I'm hoping to use this a springboard to later write a Gameboy emulator.
 
-![Video Demo](/static/CHIP-8_Recording.gif)
+![Video Demo](/static/CHIP_8_ScreenRecording.mov)
 
 ## Table of Contents
 - [Technologies Used](#technologies-used)
