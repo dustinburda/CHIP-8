@@ -206,6 +206,9 @@ void CHIP8::Run() {
 
     auto last_time = std::chrono::steady_clock::now();
 
+    double cpu_remainder   = 0.0;
+    double timer_remainder = 0.0;
+
     while (running) {
         auto start = std::chrono::steady_clock::now();
         std::chrono::duration<double> frame_time = start - last_time;
@@ -213,22 +216,32 @@ void CHIP8::Run() {
 
         double dt = frame_time.count();
 
-        for (auto i_c = dt * CPU_FREQUENCY; i_c >= 0; i_c -= 1.0) {
+        cpu_remainder += dt * CPU_FREQUENCY;
+        int cpu_steps = static_cast<int>(cpu_remainder);
+        cpu_remainder -= cpu_steps;
+
+        for (int i = 0; i < cpu_steps; ++i) {
             auto instruction = Fetch();
             Execute(instruction);
         }
 
-        for (auto i_t = dt * TIMER_FREQUENCY; i_t >= 0; i_t -= 1.0) {
+        timer_remainder += dt * TIMER_FREQUENCY;
+        int timer_steps = static_cast<int>(timer_remainder);
+        timer_remainder -= timer_steps;
+
+        for (int i = 0; i < timer_steps; ++i) {
             if (cpu_.dt_ > 0)
                 cpu_.dt_--;
             if (cpu_.st_ > 0)
                 cpu_.st_--;
         }
 
+        // ---- Input ----
         SDL_Event event;
         while (SDL_PollEvent(&event))
             HandleInput(event, running);
 
+        // ---- Video ----
         if (draw_flag) {
             draw_flag = false;
             w.RefreshDisplay(d_);
