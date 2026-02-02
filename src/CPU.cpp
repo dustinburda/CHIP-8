@@ -213,12 +213,12 @@ void CHIP8::Run() {
 
         double dt = frame_time.count();
 
-        for (auto i_c = dt * CPU_FREQUENCY; i_c >= 0; i_c--) {
+        for (auto i_c = dt * CPU_FREQUENCY; i_c >= 0; i_c -= 1.0) {
             auto instruction = Fetch();
             Execute(instruction);
         }
 
-        for (auto i_t = dt * TIMER_FREQUENCY; i_t >= 0; i_t--) {
+        for (auto i_t = dt * TIMER_FREQUENCY; i_t >= 0; i_t -= 1.0) {
             if (cpu_.dt_ > 0)
                 cpu_.dt_--;
             if (cpu_.st_ > 0)
