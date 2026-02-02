@@ -41,7 +41,7 @@ extern std::unordered_map<std::uint8_t, KeyState> KeypadKey_State {
 };
 
 int main(int argc, char** argv) {
-    std::string rom_path = "../roms/pong2.ch8";
+    std::string rom_path = "../roms/breakout.ch8";
 
     if (argc == 2)
         rom_path = argv[1];
